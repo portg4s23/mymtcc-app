@@ -1,4 +1,3 @@
-import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/hooks/use-theme-color';
 import { FontAwesome5, FontAwesome6, Octicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
@@ -6,8 +5,6 @@ import { Tabs } from 'expo-router';
 export default function TabsLayout() {
 
   const theme = useTheme()
-
-  const { user } = useAuth();
 
   return (
     <Tabs
@@ -52,6 +49,15 @@ export default function TabsLayout() {
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
             <FontAwesome5 name="user" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="cog" size={size} color={color} />
           ),
         }}
       />

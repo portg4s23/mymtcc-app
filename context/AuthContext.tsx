@@ -1,4 +1,3 @@
-import * as WebBrowser from "expo-web-browser";
 import {
   createContext,
   ReactNode,
@@ -9,7 +8,6 @@ import {
 } from "react";
 
 
-import { APP_ID, SSO_URL } from "@/constants/app";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { User } from "@/models/User.model";
 import { clearToken, getToken } from "@/storage/secureStore";
@@ -17,12 +15,12 @@ import { useRouter } from "expo-router";
 
 
 interface AuthContextType {
-  initialized: boolean;
+  initializingToken: boolean;
   loading: boolean;
-  authenticated: boolean;
+  token: string | null;
+  setToken: (token: string | null) => void;
   ready: boolean;
   user: User | null;
-  refreshUser: () => Promise<any>;
   logout: () => Promise<void>;
 }
 
@@ -30,94 +28,85 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-
+export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
-  const [initialized, setInitialized] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [appLoading, setAppLoading] = useState(true);
-  const [loggedOut, setLoggedOut] = useState(false);
+  // const [initialized, setInitialized] = useState(false);
+  const [token, setToken] = useState<string | null>(null); // set by login
+  const [user, setUser] = useState<User | null>(null); // set by useCurrentUser
+  const [initializingToken, setInitializingToken] = useState(true); // set by bootstrap
 
+  // const [appLoading, setAppLoading] = useState(true);
+
+  // -----------------------------
+  // LOGOUT
+  // -----------------------------
   const logout = async () => {
     await clearToken();
+
     setToken(null);
     setUser(null);
 
-    router.dismissAll();
-
-    router.replace("/(auth)/login");
-
-    const logoutUrl =
-      `${SSO_URL}/logout/?returnUrl=${SSO_URL}&type=employee&appId=${APP_ID}`;
-
-    WebBrowser.openBrowserAsync(logoutUrl);
+    router.replace("/(auth)/logout");
   };
 
-  /**
-   * Load token once on app startup
-   */
+  // -----------------------------
+  // LOAD TOKEN
+  // -----------------------------
   useEffect(() => {
-    const bootstrap = async () => {
-      try {
-        const storedToken = await getToken();
 
-        setToken(storedToken);
-        // console.log('Token loaded from secure storage:', storedToken);
-      } finally {
-        setInitialized(true);
-      }
+    const bootstrap = async () => {
+      setInitializingToken(true);
+      const storedToken = await getToken();
+      setToken(storedToken);
+      setInitializingToken(false);
     };
 
-    bootstrap();
+    // In case of user being already logged in but cold start app
+    if (!token) {
+      bootstrap();
+    }
+
   }, []);
 
-  /**
-   * Fetch user
-   */
+  // -----------------------------
+  // FETCH USER (only if token exists)
+  // -----------------------------
   const {
     loading: userLoading,
     error: userError,
-    // refetch,
   } = useCurrentUser({
+    skip: !token,
     setUser,
-    setAppLoading,
-    setLoggedOut,
     logout,
     router,
   });
 
-  // console.log('authcontext.user', user?.id, user?.fullName, user?.rcno);
+  // -----------------------------
+  const ready = useMemo(() => {
+    if (!token) return true; // no auth needed → ready to go login
 
-  const ready =
-    initialized &&
-    (!token || (!!token && !userLoading && !!user));
+    return !!token && !userLoading && user !== undefined;
+  }, [token, userLoading, user]);
 
-  const value = useMemo<AuthContextType>(
-    () => ({
-      initialized,
-      loading: !initialized || (!!token && userLoading),
-      ready,
-      authenticated: !!token && !!user,
-      user: user,
-      refreshUser: async () => {
-        // Placeholder for refreshUser function
-      },
-      logout,
-    }),
-    [
-      initialized,
-      token,
-      userLoading,
-      user,
-      // refetch,
-    ]
-  );
+  // -----------------------------
+  // CONTEXT VALUE
+  // -----------------------------
+  const value = useMemo<AuthContextType>(() => ({
+    initializingToken,
+    loading: userLoading,
+    ready,
+    token,
+    setToken,
+    user,
+    logout,
+  }), [
+    initializingToken,
+    ready,
+    token,
+    user,
+    userLoading,
+  ]);
 
   return (
     <AuthContext.Provider value={value}>

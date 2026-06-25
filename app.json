@@ -18,7 +18,8 @@
         "backgroundColor": "#08090C"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.xainahmed.mymtccx"
     },
     "web": {
       "output": "static",

@@ -9,4 +9,5 @@ export interface User {
   fullName: string;
   rcno: number
   permissions: string[];
+  name?: string;
 }

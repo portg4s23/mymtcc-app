@@ -1,61 +1,37 @@
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "expo-router";
+import { useTheme } from "@/hooks/use-theme-color";
+import { Feather } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-interface MeData {
-  me: {
-    id: string;
-    fullName: string;
-    email: string;
-    rcno: string;
-    division: string;
-    divisionId: string;
-    divisionCode: string;
-    phoneMobile: string;
-    phoneOffice: string;
-    permissions: string[];
-  };
-}
-
 export default function Dashboard() {
-  const router = useRouter();
 
   const { user, logout } = useAuth();
-
-  // Get me Query
-  // const [me, { loading, data, error }] = useLazyQuery<MeData>(ME_QUERY, {
-  //   client: aa2Client
-  // });
-
-  // // Fetch user data on mount
-  // useEffect(() => {
-  //   console.log("[Dashboard] Component mounted, fetching user data...");
-  //   me()
-  //     .then((result) => {
-  //       console.log("[Dashboard] Query completed:", result);
-  //     })
-  //     .catch((err) => {
-  //       console.log("[Dashboard] Query failed:", err);
-  //     });
-  // }, []);
+  const theme = useTheme()
 
   return (
     <View style={styles.container}>
 
       <View className="mb-4">
-        <Text style={{ color: 'white' }}>Welcome, {user?.fullName || "User"}!</Text>
+        <Text style={{ color: theme.text }}>Welcome, {user?.name || "User"}!</Text>
       </View>
 
       <TouchableOpacity
+        activeOpacity={0.7}
         onPress={logout}
         style={{
-          backgroundColor: '#1677FF',
-          paddingVertical: 10,
+          backgroundColor: theme.primary,
           paddingHorizontal: 20,
-          borderRadius: 5,
+          paddingVertical: 14,
+          borderRadius: 16,
+          alignItems: "center",
+          borderWidth: 1,
+          flexDirection: "row",
+          justifyContent: "center",
+          gap: 8,
         }}
       >
-        <Text style={{ color: 'white' }}>Logout</Text>
+        <Feather name="log-out" size={16} color={theme.text} />
+        <Text style={{ color: theme.text }}>Logout</Text>
       </TouchableOpacity>
 
     </View>

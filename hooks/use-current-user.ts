@@ -2,7 +2,7 @@ import { aa2Client } from "@/api/aa2Client";
 import { apsClient } from "@/api/apsClient";
 import { gql, TypedDocumentNode } from "@apollo/client";
 import { useLazyQuery, useQuery } from "@apollo/client/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ME_QUERY } from "./use-me";
 
 export type GetUserQuery = {
@@ -61,70 +61,75 @@ export const GET_USER_QUERY: TypedDocumentNode<
 `;
 
 export function useCurrentUser({
+  skip,
   setUser,
-  setAppLoading,
-  setLoggedOut,
   logout,
   router,
 }: any) {
 
-  const { data, loading, error, refetch } = useQuery(GET_USER_QUERY, {
+  const [loadingState, setLoadingState] = useState(true);
+
+  const { data, error, refetch } = useQuery(GET_USER_QUERY, {
+    skip,
     client: apsClient,
     fetchPolicy: "cache-first",
   });
 
-  const user = data?.employeeWithUUIDRaw;
-
-  const [fetchMe, { data: meData, loading: meLoading, error: meError }] = useLazyQuery(ME_QUERY, {
+  const [fetchMe] = useLazyQuery(ME_QUERY, {
     client: aa2Client,
     fetchPolicy: "cache-and-network",
   });
 
   // Set user in context when fetched
   useEffect(() => {
+    const loadUser = async () => {
+      try {
+        setLoadingState(true);
 
-    if (!user) return;
+        const user = data?.employeeWithUUIDRaw;
 
-    console.log('useCurrentUser.user', user?.id, user?.name, user?.division);
+        if (!user) return;
 
-    setUser((prev: any) => ({
-      ...prev,
-      id: user.id,
-      name: user.name,
-      division: user.division,
-      isApprover: user.isApprover,
-      isManager: user.isManager,
-      isProxy: user.isProxy || [5291, 5669].includes(user.id),
-      hasDashboardAccess: user.hasDashboardAccess,
-      isSiteAdmin: user.isSiteAdmin,
-      levelGrade: user.levelGrade,
-      roles: user.roles?.map((r: any) => r.role_id),
-      workflows: user.workflows,
-      isBigOne: user.isBigOne,
-      odi_team: user.odi_team,
-      odi_team_position: user.odi_team_position,
-    }));
+        setUser((prev: any) => ({
+          ...prev,
+          id: user.id,
+          name: user.name,
+          division: user.division,
+          isApprover: user.isApprover,
+          isManager: user.isManager,
+          isProxy: user.isProxy || [5291, 5669].includes(user.id),
+          hasDashboardAccess: user.hasDashboardAccess,
+          isSiteAdmin: user.isSiteAdmin,
+          levelGrade: user.levelGrade,
+          roles: user.roles?.map((r: any) => r.role_id),
+          workflows: user.workflows,
+          isBigOne: user.isBigOne,
+          odi_team: user.odi_team,
+          odi_team_position: user.odi_team_position,
+        }));
 
-    fetchMe();
+        const result = await fetchMe();
+        const me = result?.data?.me;
 
-    setAppLoading(false);
-    setLoggedOut(false);
-  }, [user]);
+        if (me) {
+          setUser((prev: any) => ({
+            ...prev,
+            ...me,
+            id: prev.id,
+            permissions: me.permissions,
+          }));
+        }
 
-  useEffect(() => {
-    if (meData?.me) {
+      } finally {
+        setLoadingState(false);
+      }
+    };
 
-      console.log('useCurrentUser.meData', meData?.me?.id, meData?.me?.fullName, meData?.me?.rcno);
-
-      setUser((prev: any) => ({
-        ...prev,
-        ...meData.me,
-        id: prev.id,
-        permissions: meData.me.permissions,
-      }));
+    if (data?.employeeWithUUIDRaw) {
+      loadUser();
     }
+  }, [data]);
 
-  }, [meData])
 
   // Handle errors (e.g. token expired, user not found, etc.)
   useEffect(() => {
@@ -137,15 +142,10 @@ export function useCurrentUser({
       return;
     }
 
-    router.replace("/(auth)/login");
-
-    setLoggedOut(true);
-    setAppLoading(false);
   }, [error]);
 
   return {
-    // user,
-    loading: loading || meLoading,
+    loading: loadingState,
     error,
     refetch,
   };
