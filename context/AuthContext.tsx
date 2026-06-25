@@ -1,3 +1,4 @@
+import * as WebBrowser from "expo-web-browser";
 import {
   createContext,
   ReactNode,
@@ -7,44 +8,25 @@ import {
   useState,
 } from "react";
 
-import { useQuery } from "@apollo/client/react";
 
-
+import { APP_ID, SSO_URL } from "@/constants/app";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { User } from "@/models/User.model";
-import { aa2Client } from "@/services/aa2Client";
 import { clearToken, getToken } from "@/storage/secureStore";
-import { gql } from "@apollo/client";
 import { useRouter } from "expo-router";
-import { Alert, Linking } from "react-native";
-
-// Try common alternatives for current user query
-export const ME_QUERY = gql`
-  query me {
-    me {
-      id
-      rcno
-      fullName
-      email
-      division
-      divisionId
-      divisionCode
-      phoneMobile
-      phoneOffice
-      # ...UserFields
-      # permissions
-    }
-  }
-`;
 
 
 interface AuthContextType {
   initialized: boolean;
   loading: boolean;
   authenticated: boolean;
+  ready: boolean;
   user: User | null;
   refreshUser: () => Promise<any>;
   logout: () => Promise<void>;
 }
+
+// MARK: - Auth Context
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -58,14 +40,24 @@ export function AuthProvider({
 
   const [initialized, setInitialized] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [appLoading, setAppLoading] = useState(true);
+  const [loggedOut, setLoggedOut] = useState(false);
 
-  useEffect(() => {
-    const x = async () => {
-      await clearToken()
-    }
+  const logout = async () => {
+    await clearToken();
+    setToken(null);
+    setUser(null);
 
-    // x();
-  }, [])
+    router.dismissAll();
+
+    router.replace("/(auth)/login");
+
+    const logoutUrl =
+      `${SSO_URL}/logout/?returnUrl=${SSO_URL}&type=employee&appId=${APP_ID}`;
+
+    WebBrowser.openBrowserAsync(logoutUrl);
+  };
 
   /**
    * Load token once on app startup
@@ -76,6 +68,7 @@ export function AuthProvider({
         const storedToken = await getToken();
 
         setToken(storedToken);
+        // console.log('Token loaded from secure storage:', storedToken);
       } finally {
         setInitialized(true);
       }
@@ -85,64 +78,44 @@ export function AuthProvider({
   }, []);
 
   /**
-   * Fetch current user
+   * Fetch user
    */
-  const { data, loading: userLoading, error, refetch } = useQuery<{ me: User }>(ME_QUERY, {
-    client: aa2Client,
-    skip: !token,
-    fetchPolicy: "cache-and-network",
-    errorPolicy: "none",
+  const {
+    loading: userLoading,
+    error: userError,
+    // refetch,
+  } = useCurrentUser({
+    setUser,
+    setAppLoading,
+    setLoggedOut,
+    logout,
+    router,
   });
 
-  useEffect(() => {
+  // console.log('authcontext.user', user?.id, user?.fullName, user?.rcno);
 
-    // console.log('data', data?.me?.fullName)
-
-  }, [data, error]);
-
-  /**
-   * Invalid / expired token
-   */
-  useEffect(() => {
-    if (!error) return;
-
-    const handleAuthError = async () => {
-      console.log("[Auth] ME query failed", error);
-      Alert.alert("Authentication Error", "Your session has expired. Please log in again.");
-
-      await clearToken();
-
-      setToken(null);
-    };
-
-    handleAuthError();
-  }, [error]);
-
-  const logout = async () => {
-    await clearToken();
-
-    const logoutUrl = "https://id.mtcc.com.mv/logout/?returnUrl=https://my.mtcc.com.mv&type=employee&appId=9434025C-F2F3-4D93-B974-16743962AE46";
-
-    await Linking.openURL(logoutUrl);
-
-    router.replace("/(auth)/login");
-  };
+  const ready =
+    initialized &&
+    (!token || (!!token && !userLoading && !!user));
 
   const value = useMemo<AuthContextType>(
     () => ({
       initialized,
       loading: !initialized || (!!token && userLoading),
-      authenticated: !!token && !!data?.me,
-      user: data?.me ?? null,
-      refreshUser: refetch,
+      ready,
+      authenticated: !!token && !!user,
+      user: user,
+      refreshUser: async () => {
+        // Placeholder for refreshUser function
+      },
       logout,
     }),
     [
       initialized,
       token,
       userLoading,
-      data,
-      refetch,
+      user,
+      // refetch,
     ]
   );
 

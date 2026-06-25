@@ -3,8 +3,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 
-// TODO: Replace with your actual API URL
-const API_URL = "https://api-aps.mtcc.com.mv/graphql";
+const API_URL = "https://aa2.mtcc.com.mv/graphql";
 
 // console.log("[Apollo Client] Initializing with API URL:", API_URL);
 
@@ -22,8 +21,6 @@ const authLink = setContext(async (_, { headers }) => {
     ...headers,
     authorization: token ? `Bearer ${token}` : "",
   };
-
-  // console.log("[Apollo Client] Request headers:", JSON.stringify(newHeaders, null, 2));
 
   return {
     headers: newHeaders,
@@ -48,7 +45,7 @@ const errorLink = onError((errorResponse) => {
   }
 });
 
-export const apolloClient = new ApolloClient({
+export const aa2Client = new ApolloClient({
   link: errorLink.concat(authLink).concat(httpLink),
   cache: new InMemoryCache({
     typePolicies: {
@@ -65,5 +62,3 @@ export const apolloClient = new ApolloClient({
     },
   }),
 });
-
-console.log("[Apollo Client] Client initialized successfully");

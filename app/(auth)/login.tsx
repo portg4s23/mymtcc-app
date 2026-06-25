@@ -1,3 +1,4 @@
+import { APP_ID } from "@/constants/app";
 import { saveToken } from "@/storage/secureStore";
 import { extractToken } from "@/utils/parseToken";
 import { useRouter } from "expo-router";
@@ -6,7 +7,7 @@ import { ActivityIndicator, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
-export const SSO_URL = "https://id.mtcc.com.mv/?returnUrl=https://my.mtcc.com.mv&type=employee&appId=9434025C-F2F3-4D93-B974-16743962AE46&kind=email";
+export const SSO_URL = `https://id.mtcc.com.mv/?returnUrl=https://my.mtcc.com.mv&type=employee&appId=${APP_ID}&kind=email`;
 
 export default function Login() {
   const router = useRouter();
@@ -15,12 +16,12 @@ export default function Login() {
   const [loading, setLoading] = useState(true);
   const [authing, setAuthing] = useState(false);
 
+  console.log('hit login')
+
   const handleToken = (url: string) => {
     if (authing) return false;
 
     const token = extractToken(url);
-
-    console.log('\nToken extracted:', token);
 
     if (token) {
       setAuthing(true);
@@ -28,12 +29,14 @@ export default function Login() {
       // Handle async token storage without blocking the return
       saveToken(token)
         .then(() => {
+          console.log('Token saved successfully:', token);
+
           // stop WebView navigation
           webviewRef.current?.stopLoading();
 
           // small delay avoids race conditions
           setTimeout(() => {
-            router.replace("/(app)/wfh");
+            router.replace("/");
           }, 200);
         })
         .catch(() => {
@@ -72,6 +75,7 @@ export default function Login() {
           onLoadStart={() => setLoading(true)}
           onLoadEnd={() => setLoading(false)}
           onShouldStartLoadWithRequest={(req) => {
+            console.log('login.webview.request', req.url);
             return handleToken(req.url);
           }}
         />

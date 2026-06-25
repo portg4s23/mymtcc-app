@@ -1,7 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
-import { StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface MeData {
   me: {
@@ -21,7 +20,7 @@ interface MeData {
 export default function Dashboard() {
   const router = useRouter();
 
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   // Get me Query
   // const [me, { loading, data, error }] = useLazyQuery<MeData>(ME_QUERY, {
@@ -41,10 +40,25 @@ export default function Dashboard() {
   // }, []);
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: 'white' }}>
-      <View style={styles.container}>
+    <View style={styles.container}>
+
+      <View className="mb-4">
+        <Text style={{ color: 'white' }}>Welcome, {user?.fullName || "User"}!</Text>
       </View>
-    </SafeAreaView>
+
+      <TouchableOpacity
+        onPress={logout}
+        style={{
+          backgroundColor: '#1677FF',
+          paddingVertical: 10,
+          paddingHorizontal: 20,
+          borderRadius: 5,
+        }}
+      >
+        <Text style={{ color: 'white' }}>Logout</Text>
+      </TouchableOpacity>
+
+    </View>
   );
 }
 
@@ -55,7 +69,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     gap: 12,
-    // backgroundColor: 'white'
   },
   title: {
     fontSize: 24,

@@ -1,26 +1,18 @@
-import { getToken } from "@/storage/secureStore";
+import CustomSpinner from "@/components/ui/Spinner";
+import { useAuth } from "@/context/AuthContext";
 import { Redirect } from "expo-router";
-import { useEffect, useState } from "react";
-import { ActivityIndicator } from "react-native";
+import { View } from "react-native";
 
 export default function Index() {
-  const [loading, setLoading] = useState(true);
-  const [hasToken, setHasToken] = useState(false);
+  const { ready, authenticated } = useAuth();
 
-  useEffect(() => {
-    getToken().then((token) => {
-      setHasToken(!!token);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
-    return <ActivityIndicator size="large" />;
-  }
-
-  return hasToken ? (
-    <Redirect href="/(app)/wfh" />
-  ) : (
-    <Redirect href="/(auth)/login" />
+  if (!ready) return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <CustomSpinner />
+    </View>
   );
+
+  return authenticated
+    ? <Redirect href="/(tabs)/dashboard" />
+    : <Redirect href="/(auth)/login" />;
 }

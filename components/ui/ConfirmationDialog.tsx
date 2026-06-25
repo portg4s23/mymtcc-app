@@ -1,3 +1,5 @@
+import { useTheme } from '@/hooks/use-theme-color';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -10,12 +12,10 @@ import {
 
 type Props = {
   visible: boolean;
-  loading?: boolean; // 👈 Apollo controls this
-  title?: string;
-  message?: string;
-  confirmText?: string;
-  cancelText?: string;
+  loading?: boolean;
   loadingMessage?: string;
+  clockType?: 'In' | 'Out';
+  time?: string
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -23,43 +23,63 @@ type Props = {
 export const ConfirmLoadingDialog: React.FC<Props> = ({
   visible,
   loading = false,
-  title = 'Confirm',
-  message = 'Are you sure?',
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
   loadingMessage = 'Processing...',
+  clockType,
+  time,
   onConfirm,
   onCancel,
 }) => {
+
+  const theme = useTheme();
+
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <View style={styles.backdrop}>
-        <View style={styles.container}>
+        <View style={{ ...styles.container, backgroundColor: theme.backgroundSecondary }}>
+
+          <View style={{ marginBottom: 12 }}>
+            <Ionicons name="checkmark-circle-outline" size={40} color={theme.text} />
+          </View>
+
           {!loading ? (
             <>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.message}>{message}</Text>
+              <Text style={{ ...styles.title, color: theme.text }}>Confirm Action</Text>
+              <Text style={{ ...styles.message, color: theme.textSecondary }}>
+                Are you sure you want to{"\n"}
+                <Text style={{ fontWeight: "bold", color: theme.textSecondary }}>
+                  Clock {clockType}
+                </Text>{" "}
+                at{" "}
+                <Text style={{ fontWeight: "bold", color: theme.textSecondary }}>
+                  {time}
+                </Text>
+                ?
+              </Text>
 
               <View style={styles.buttonRow}>
+
                 <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
-                  onPress={onCancel}
+                  activeOpacity={0.8}
+                  style={{ ...styles.button, backgroundColor: theme.primaryActive }}
+                  onPress={onConfirm}
                 >
-                  <Text style={styles.cancelText}>{cancelText}</Text>
+                  <Text style={{ ...styles.confirmText, color: theme.text }}>Confirm</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.button, styles.confirmButton]}
-                  onPress={onConfirm}
+                  activeOpacity={0.8}
+                  style={{ ...styles.button, backgroundColor: theme.background }}
+                  onPress={onCancel}
                 >
-                  <Text style={styles.confirmText}>{confirmText}</Text>
+                  <Text style={{ ...styles.cancelText, color: theme.text }}>Cancel</Text>
                 </TouchableOpacity>
+
               </View>
             </>
           ) : (
             <>
               <ActivityIndicator size="large" color="#007AFF" />
-              <Text style={styles.loadingText}>{loadingMessage}</Text>
+              <Text style={{ ...styles.loadingText, color: theme.text }}>{loadingMessage}</Text>
             </>
           )}
         </View>
@@ -76,7 +96,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container: {
-    backgroundColor: '#1b1d25',
     padding: 24,
     borderRadius: 16,
     width: '85%',
@@ -84,15 +103,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
-    color: 'white',
     marginBottom: 8,
   },
   message: {
+    lineHeight: 20,
     fontSize: 14,
     color: '#d1d5db',
-    marginBottom: 24,
+    marginBottom: 32,
     textAlign: 'center',
   },
   loadingText: {
@@ -102,26 +121,26 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   buttonRow: {
-    flexDirection: 'row',
+    width: '100%',
+    flexDirection: 'column',
     gap: 12,
   },
   button: {
-    paddingVertical: 10,
+    width: '100%',
+    paddingVertical: 14,
     paddingHorizontal: 18,
-    borderRadius: 8,
+    borderRadius: 12,
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cancelButton: {
     backgroundColor: '#2f3441',
   },
-  confirmButton: {
-    backgroundColor: '#007AFF',
-  },
   cancelText: {
-    color: 'white',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   confirmText: {
-    color: 'white',
     fontWeight: '600',
   },
 });
