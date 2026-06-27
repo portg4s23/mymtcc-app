@@ -11,7 +11,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.xainahmed.mymtcc-x",
-      "appleTeamId": "22SXZF5X6M"
+      "appleTeamId": "22SXZF5X6M",
+      "infoPlist": {
+        "UIBackgroundModes": []
+      }
     },
     "android": {
       "adaptiveIcon": {
