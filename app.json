@@ -39,7 +39,16 @@
           }
         }
       ],
-      "expo-secure-store"
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/sounds/reminder.wav"
+          ]
+        }
+      ],
+      "expo-secure-store",
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

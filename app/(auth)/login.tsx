@@ -1,15 +1,14 @@
-import { APP_ID, SSO_URL_BASE } from "@/constants/app";
+import { env } from "@/config/env";
 import { useAuth } from "@/context/AuthContext";
-import { log, maskJwtToken } from "@/helpers";
 import { saveToken } from "@/storage/secureStore";
 import { extractToken } from "@/utils/parseToken";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
-export const SSO_URL = `${SSO_URL_BASE}/?returnUrl=https://my.mtcc.com.mv&type=employee&appId=${APP_ID}&kind=email`;
+export const SSO_URL = `${env.SSO_URL_BASE}/?returnUrl=https://${env.APP_BASE_URL}&type=employee&appId=${env.APP_ID}&kind=email`;
 
 export default function Login() {
   const router = useRouter();
@@ -20,10 +19,6 @@ export default function Login() {
 
   const [loading, setLoading] = useState(true);
   const [authing, setAuthing] = useState(false);
-
-  useEffect(() => {
-    log('\nLogin >', 'mounted');
-  }, [])
 
   const handleToken = (url: string) => {
     if (authing) return false;
@@ -36,7 +31,6 @@ export default function Login() {
       // Handle async token storage without blocking the return
       saveToken(token)
         .then(() => {
-          log('Login > handleToken', maskJwtToken(token));
 
           // stop WebView navigation
           webviewRef.current?.stopLoading();

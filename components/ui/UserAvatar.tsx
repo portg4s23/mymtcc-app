@@ -1,4 +1,4 @@
-import { API_URLS } from "@/constants/urls";
+import { env } from "@/config/env";
 import { User } from "@/models/User.model";
 import { Image } from "expo-image";
 import React from "react";
@@ -24,14 +24,10 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 
   const hasImage = !!user?.rcno;
 
-  const imageUri = user?.rcno
-    ? `${API_URLS.avatar}${user.rcno}`
-    : null;
-
   return (
     <Pressable onPress={onPress} style={style}>
       <Image
-        source={hasImage ? { uri: `${API_URLS.avatar}${user.rcno}` } : undefined}
+        source={hasImage ? { uri: `${env.APS_API_URL}/employee/photo/${user.rcno}` } : undefined}
         placeholder={{ blurhash }}
         contentFit="cover"
         transition={400}

@@ -40,7 +40,6 @@ export function MonthYearPicker({
   useEffect(() => {
     if (visible) {
       setSelectedYear(initialYear || currentYear)
-      console.log('Initial month set to:', initialMonth)
       setSelectedMonth(initialMonth ?? 1)
     }
   }, [visible, initialYear, initialMonth])
@@ -96,7 +95,6 @@ export function MonthYearPicker({
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                 {months.map((m, index) => {
                   const monthNumber = index + 1 // Convert to 1-based
-                  console.log('Comparing month:', monthNumber, 'with selectedMonth:', selectedMonth)
                   const isSelected = monthNumber === selectedMonth
                   return (
                     <Pressable

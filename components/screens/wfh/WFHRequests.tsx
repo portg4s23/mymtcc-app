@@ -92,8 +92,6 @@ const WFHRequests = ({ inView }: { inView: boolean }) => {
   const theme = useTheme();
   const { user } = useAuth();
 
-  console.log('wfhrequests.user.id', user)
-
   const { data, loading, error, refetch, networkStatus } = useQuery(WFH_REQUESTS_QUERY, {
     skip: !user || !inView,
     variables: {

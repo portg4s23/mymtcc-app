@@ -1,31 +1,20 @@
-import { APP_BASE_URL, APP_ID, SSO_URL_BASE } from "@/constants/app";
-import { log } from "@/helpers";
+import { env } from "@/config/env";
 import { clearToken } from "@/storage/secureStore";
 import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
-// export const SSO_URL = `${SSO_URL_BASE}/?returnUrl=https://my.mtcc.com.mv&type=employee&appId=${APP_ID}&kind=email`;
-const LOGOUT_URL = `${SSO_URL_BASE}/logout/?returnUrl=${APP_BASE_URL}&type=employee&appId=${APP_ID}`;
-
-
+const LOGOUT_URL = `${env.SSO_URL_BASE}/logout/?returnUrl=${env.APP_BASE_URL}&type=employee&appId=${env.APP_ID}`;
 
 export default function Logout() {
   const router = useRouter();
-  const webviewRef = useRef<WebView>(null);
 
   const [loading, setLoading] = useState(true);
-  const [authing, setAuthing] = useState(false);
   const [handled, setHandled] = useState(false);
 
-  useEffect(() => {
-    log('\nLogout> ', 'mounted');
-  }, [])
-
   const handleComplete = async () => {
-    log('> Logged out!');
     await clearToken(); // extra safety
     router.replace("/(auth)/login");
   };
@@ -57,16 +46,13 @@ export default function Logout() {
         <WebView
           source={{ uri: LOGOUT_URL }}
           onNavigationStateChange={(navState) => {
-            const { url, loading } = navState;
-
-            // log('logout.nav', url);
-            // log('logout.loading', loading);
+            const { url } = navState;
 
             // Prevent multiple triggers
             if (handled) return;
 
             // Check final redirect
-            if (url.startsWith(APP_BASE_URL)) {
+            if (url.startsWith(env.APP_BASE_URL!)) {
               setHandled(true);
               handleComplete();
             }

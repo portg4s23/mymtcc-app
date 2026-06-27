@@ -257,7 +257,6 @@ export default function RequestRemoteAttendanceModal({ refetchQueries }: Props) 
                   <Text style={{ color: theme.textTertiary }}>{dateRange.start && dateRange.end ? `${dayjs(dateRange.start).format("DD MMM YYYY")} - ${dayjs(dateRange.end).format("DD MMM YYYY")}` : "Select date range"}</Text>
                 </View>
 
-
               </View>
 
               <DateTimePicker
