@@ -13,7 +13,8 @@
       "bundleIdentifier": "com.xainahmed.mymtcc-x",
       "appleTeamId": "22SXZF5X6M",
       "infoPlist": {
-        "UIBackgroundModes": []
+        "UIBackgroundModes": [],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -56,6 +57,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5cd1878d-1836-488d-9fa7-c832046d6dd4"
+      }
+    },
+    "owner": "xainahmed"
   }
 }
