@@ -55,7 +55,7 @@ export const SettingRow = ({
       <View style={styles.right}>
         {/* value (like time) */}
         {!!value && (
-          <Text style={[styles.value, { color: theme.text }]} onPress={onPress}>
+          <Text style={[styles.value, { color: theme.primary }]} onPress={onPress}>
             {value}
           </Text>
         )}
@@ -76,11 +76,11 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
+    paddingVertical: 20,
   },
 
   label: {
-    fontSize: 16,
+    fontSize: 14,
   },
 
   description: {
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
 
   value: {
-    fontSize: 14,
+    // fontSize: 16,
     // fontWeight: "600",
   },
 });

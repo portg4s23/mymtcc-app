@@ -95,6 +95,8 @@ const NotificationSettingsBlock = () => {
           />
         </View>
 
+        <View style={{ height: 0.5, backgroundColor: theme.backgroundTertiary }} />
+
         {enabled && (
           <View style={styles.subContainer}>
 
@@ -109,6 +111,8 @@ const NotificationSettingsBlock = () => {
               theme={theme}
             />
 
+            <View style={{ height: 0.5, backgroundColor: theme.backgroundTertiary }} />
+
             {/* SIGN OUT */}
             <SettingRow
               label="Sign-out Reminder"
@@ -119,10 +123,6 @@ const NotificationSettingsBlock = () => {
               onPress={() => openTimePicker("signOut")}
               theme={theme}
             />
-
-            <Text style={[styles.subtext, { color: theme.textSecondary }]}>
-              You will be reminded based on your work schedule (excluding weekends)
-            </Text>
 
           </View>
         )}
@@ -171,7 +171,7 @@ export default NotificationSettingsBlock
 
 const styles = StyleSheet.create({
   card: {
-    padding: 14,
+    paddingHorizontal: 14,
     borderRadius: 12,
     marginBottom: 10,
   },
@@ -179,17 +179,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingVertical: 16,
   },
   subContainer: {
-    marginTop: 12,
-    gap: 12,
+    // marginTop: 12,
+    // gap: 12,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
-  },
-  subtext: {
-    marginTop: 8,
-    fontSize: 12,
   },
 })

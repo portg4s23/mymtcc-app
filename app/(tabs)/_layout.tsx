@@ -1,5 +1,5 @@
 import { useTheme } from '@/hooks/use-theme-color';
-import { FontAwesome5, FontAwesome6, Octicons } from '@expo/vector-icons';
+import { FontAwesome5, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
 export default function TabsLayout() {
@@ -30,7 +30,7 @@ export default function TabsLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Octicons name="home" size={size} color={color} />
+            <MaterialIcons name="dashboard" size={size} color={color} />
           ),
         }}
       />

@@ -14,11 +14,13 @@ export function AppHeader({ title, right, left, style }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
 
+  const hasExtraContent = !!right || !!left;
+
   return (
     <View
       style={[
         styles.container,
-        { paddingTop: insets.top + 6 },
+        { paddingTop: insets.top + (hasExtraContent ? 6 : 14) },
         style,
       ]}
     >

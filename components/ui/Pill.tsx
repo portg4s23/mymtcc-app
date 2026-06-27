@@ -8,6 +8,8 @@ type Props = {
   icon?: React.ReactNode;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  useBg2?: boolean;
+  hideBorder?: boolean;
   children?: React.ReactNode;
 };
 
@@ -17,6 +19,8 @@ export const Pill: React.FC<Props> = ({
   icon,
   style,
   textStyle,
+  useBg2 = false,
+  hideBorder = false,
   children,
 }) => {
   const colors = tintedColors[variant];
@@ -26,8 +30,8 @@ export const Pill: React.FC<Props> = ({
       style={[
         baseStyles.container,
         {
-          backgroundColor: colors.bg,
-          borderColor: colors.border,
+          backgroundColor: useBg2 ? colors.bg2 : colors.bg,
+          borderColor: hideBorder ? "transparent" : colors.border,
         },
         style,
       ]}

@@ -65,7 +65,7 @@ export const Colors = {
     // Status colors
     success: '#49D17D',
     warning: '#FADB14',
-    error: '#FF4D4F',
+    error: '#d83d3f',
     info: '#1677FF',
 
     // Background helpers
@@ -82,43 +82,50 @@ export type ThemeType = typeof Colors.light;
 export const tintedColors = {
   primary: {
     fg: "##264CB8",
-    bg: "rgba(30, 58, 138, 0.2)",
+    bg: "rgba(30, 58, 138, 0.1)",
+    bg2: "rgba(30, 58, 138, 0.2)",
     border: "rgba(38, 76, 184, 0.4)",
   },
 
   success: {
     fg: "#34D399",
     bg: "rgba(16, 185, 129, 0.1)",
+    bg2: "rgba(16, 185, 129, 0.2)",
     border: "rgba(16, 185, 129, 0.4)",
   },
 
   warning: {
     fg: "#F59E0B",
     bg: "rgba(245, 158, 11, 0.1)",
+    bg2: "rgba(245, 158, 11, 0.2)",
     border: "rgba(245, 158, 11, 0.3)",
   },
 
   danger: {
     fg: "#EF4444",
     bg: "rgba(239, 68, 68, 0.1)",
+    bg2: "rgba(239, 68, 68, 0.2)",
     border: "rgba(239, 68, 68, 0.4)",
   },
 
   info: {
     fg: "#06B6D4",
     bg: "rgba(6, 182, 212, 0.05)",
+    bg2: "rgba(6, 182, 212, 0.2)",
     border: "rgba(6, 182, 212, 0.4)",
   },
 
   purple: {
     fg: "#8B5CF6",
     bg: "rgba(139, 92, 246, 0.1)",
+    bg2: "rgba(139, 92, 246, 0.2)",
     border: "rgba(139, 92, 246, 0.4)",
   },
 
   neutral: {
     fg: "#B5B5B5",
     bg: "rgba(219, 234, 254, 0.1)",
+    bg2: "rgba(219, 234, 254, 0.2)",
     border: "rgba(219, 234, 254, 0.4)",
   },
 } as const;

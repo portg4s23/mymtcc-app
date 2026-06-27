@@ -1,9 +1,7 @@
-import { NotificationDebugPanel } from '@/components/NotificationDebugPanel';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { useTheme } from '@/hooks/use-theme-color';
 import React from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import NotificationSettingsBlock from './NotificationSettingsBlock';
 
 
@@ -22,14 +20,6 @@ const SettingsScreen = () => {
       title: "Notifications",
       data: ["notifications_main"],
     },
-    // {
-    //   title: "Attendance",
-    //   data: ["work_schedule"], // future
-    // },
-    // {
-    //   title: "Account",
-    //   data: ["profile", "security"], // future
-    // },
   ];
 
   const renderItem = ({ item }: any) => {
@@ -52,11 +42,9 @@ const SettingsScreen = () => {
     return <Text style={styles.sectionTitle}>{section.title}</Text>;
   };
 
-  const insets = useSafeAreaInsets()
-
   return (
     <>
-      <AppHeader title="Settings" style={{ paddingTop: insets.top + 14 }} />
+      <AppHeader title="Settings" />
 
       <View style={[styles.container, { backgroundColor: theme.background }]}>
 
@@ -71,7 +59,7 @@ const SettingsScreen = () => {
           />
         </View>
 
-        <NotificationDebugPanel />
+        {/* <NotificationDebugPanel /> */}
 
       </View>
 
