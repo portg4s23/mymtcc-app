@@ -7,144 +7,106 @@ import {
   useState,
 } from "react";
 
-import { useQuery } from "@apollo/client/react";
 
-
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { User } from "@/models/User.model";
-import { aa2Client } from "@/services/aa2Client";
 import { clearToken, getToken } from "@/storage/secureStore";
-import { gql } from "@apollo/client";
 import { useRouter } from "expo-router";
-import { Alert, Linking } from "react-native";
-
-// Try common alternatives for current user query
-export const ME_QUERY = gql`
-  query me {
-    me {
-      id
-      rcno
-      fullName
-      email
-      division
-      divisionId
-      divisionCode
-      phoneMobile
-      phoneOffice
-      # ...UserFields
-      # permissions
-    }
-  }
-`;
 
 
 interface AuthContextType {
-  initialized: boolean;
+  initializingToken: boolean;
   loading: boolean;
-  authenticated: boolean;
+  token: string | null;
+  setToken: (token: string | null) => void;
+  ready: boolean;
   user: User | null;
-  refreshUser: () => Promise<any>;
   logout: () => Promise<void>;
 }
 
+// MARK: - Auth Context
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-
+export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
-  const [initialized, setInitialized] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  // const [initialized, setInitialized] = useState(false);
+  const [token, setToken] = useState<string | null>(null); // set by login
+  const [user, setUser] = useState<User | null>(null); // set by useCurrentUser
+  const [initializingToken, setInitializingToken] = useState(true); // set by bootstrap
 
-  useEffect(() => {
-    const x = async () => {
-      await clearToken()
-    }
+  // const [appLoading, setAppLoading] = useState(true);
 
-    // x();
-  }, [])
-
-  /**
-   * Load token once on app startup
-   */
-  useEffect(() => {
-    const bootstrap = async () => {
-      try {
-        const storedToken = await getToken();
-
-        setToken(storedToken);
-      } finally {
-        setInitialized(true);
-      }
-    };
-
-    bootstrap();
-  }, []);
-
-  /**
-   * Fetch current user
-   */
-  const { data, loading: userLoading, error, refetch } = useQuery<{ me: User }>(ME_QUERY, {
-    client: aa2Client,
-    skip: !token,
-    fetchPolicy: "cache-and-network",
-    errorPolicy: "none",
-  });
-
-  useEffect(() => {
-
-    // console.log('data', data?.me?.fullName)
-
-  }, [data, error]);
-
-  /**
-   * Invalid / expired token
-   */
-  useEffect(() => {
-    if (!error) return;
-
-    const handleAuthError = async () => {
-      console.log("[Auth] ME query failed", error);
-      Alert.alert("Authentication Error", "Your session has expired. Please log in again.");
-
-      await clearToken();
-
-      setToken(null);
-    };
-
-    handleAuthError();
-  }, [error]);
-
+  // -----------------------------
+  // LOGOUT
+  // -----------------------------
   const logout = async () => {
     await clearToken();
 
-    const logoutUrl = "https://id.mtcc.com.mv/logout/?returnUrl=https://my.mtcc.com.mv&type=employee&appId=9434025C-F2F3-4D93-B974-16743962AE46";
+    setToken(null);
+    setUser(null);
 
-    await Linking.openURL(logoutUrl);
-
-    router.replace("/(auth)/login");
+    router.replace("/(auth)/logout");
   };
 
-  const value = useMemo<AuthContextType>(
-    () => ({
-      initialized,
-      loading: !initialized || (!!token && userLoading),
-      authenticated: !!token && !!data?.me,
-      user: data?.me ?? null,
-      refreshUser: refetch,
-      logout,
-    }),
-    [
-      initialized,
-      token,
-      userLoading,
-      data,
-      refetch,
-    ]
-  );
+  // -----------------------------
+  // LOAD TOKEN
+  // -----------------------------
+  useEffect(() => {
+
+    const bootstrap = async () => {
+      setInitializingToken(true);
+      const storedToken = await getToken();
+      setToken(storedToken);
+      setInitializingToken(false);
+    };
+
+    // In case of user being already logged in but cold start app
+    if (!token) {
+      bootstrap();
+    }
+
+  }, []);
+
+  // -----------------------------
+  // FETCH USER (only if token exists)
+  // -----------------------------
+  const {
+    loading: userLoading,
+    error: userError,
+  } = useCurrentUser({
+    skip: !token,
+    setUser,
+    logout,
+    router,
+  });
+
+  // -----------------------------
+  const ready = useMemo(() => {
+    if (!token) return true; // no auth needed → ready to go login
+
+    return !!token && !userLoading && user !== undefined;
+  }, [token, userLoading, user]);
+
+  // -----------------------------
+  // CONTEXT VALUE
+  // -----------------------------
+  const value = useMemo<AuthContextType>(() => ({
+    initializingToken,
+    loading: userLoading,
+    ready,
+    token,
+    setToken,
+    user,
+    logout,
+  }), [
+    initializingToken,
+    ready,
+    token,
+    user,
+    userLoading,
+  ]);
 
   return (
     <AuthContext.Provider value={value}>

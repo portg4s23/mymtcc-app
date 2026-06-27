@@ -1,15 +1,20 @@
+import { env } from "@/config/env";
+import { useAuth } from "@/context/AuthContext";
 import { saveToken } from "@/storage/secureStore";
 import { extractToken } from "@/utils/parseToken";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
-export const SSO_URL = "https://id.mtcc.com.mv/?returnUrl=https://my.mtcc.com.mv&type=employee&appId=9434025C-F2F3-4D93-B974-16743962AE46&kind=email";
+export const SSO_URL = `${env.SSO_URL_BASE}/?returnUrl=https://${env.APP_BASE_URL}&type=employee&appId=${env.APP_ID}&kind=email`;
 
 export default function Login() {
   const router = useRouter();
+
+  const { setToken } = useAuth();
+
   const webviewRef = useRef<WebView>(null);
 
   const [loading, setLoading] = useState(true);
@@ -20,20 +25,20 @@ export default function Login() {
 
     const token = extractToken(url);
 
-    console.log('\nToken extracted:', token);
-
     if (token) {
       setAuthing(true);
 
       // Handle async token storage without blocking the return
       saveToken(token)
         .then(() => {
+
           // stop WebView navigation
           webviewRef.current?.stopLoading();
 
           // small delay avoids race conditions
           setTimeout(() => {
-            router.replace("/(app)/wfh");
+            setToken(token);
+            router.replace("/");
           }, 200);
         })
         .catch(() => {
@@ -48,7 +53,10 @@ export default function Login() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
+      <View style={{ alignItems: 'center', padding: 16, backgroundColor: '#000' }}>
+        <Text style={{ color: 'white' }}>Login</Text>
+      </View>
+      <View style={{ flex: 1, borderRadius: 12, overflow: 'hidden' }}>
         {loading && (
           <View
             style={{
