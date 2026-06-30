@@ -1,11 +1,27 @@
 const APP_VARIANT = process.env.APP_VARIANT || 'production';
 
 const isDev = APP_VARIANT === 'development';
+const isPreview = APP_VARIANT === 'preview';
 
-const appName = isDev ? 'MyMTCC X (Dev)' : 'MyMTCC X';
+const dynamicConfig = {
+  development: {
+    appname: 'MyMTCC X (Dev)',
+    bundleSuffix: '.dev',
+    packageSuffix: '.dev',
+  },
+  preview: {
+    appname: 'MyMTCC X (p)',
+    bundleSuffix: '.preview',
+    packageSuffix: '.preview',
+  },
+  production: {
+    appname: 'MyMTCC X',
+    bundleSuffix: '',
+    packageSuffix: '',
+  },
+}
 
-const bundleSuffix = isDev ? '.dev' : '';
-const packageSuffix = isDev ? '.dev' : '';
+const { appname: appName, bundleSuffix, packageSuffix } = dynamicConfig[APP_VARIANT];
 
 export default {
   expo: {
