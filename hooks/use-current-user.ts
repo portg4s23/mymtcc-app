@@ -135,9 +135,10 @@ export function useCurrentUser({
   useEffect(() => {
     if (!error) return;
 
-    const message = (error as any)?.graphQLErrors?.[0]?.message;
+    const message = (error as any)?.graphQLErrors?.[0]?.message || (error as any)?.message;
 
-    if (message === "User not found.") {
+    if (message === "Login expired") {
+      // console.log('Token expired, logging out user')
       logout();
       return;
     }

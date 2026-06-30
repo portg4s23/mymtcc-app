@@ -1,0 +1,84 @@
+const APP_VARIANT = process.env.APP_VARIANT || 'production';
+
+const isDev = APP_VARIANT === 'development';
+
+const appName = isDev ? 'MyMTCC X (Dev)' : 'MyMTCC X';
+
+const bundleSuffix = isDev ? '.dev' : '';
+const packageSuffix = isDev ? '.dev' : '';
+
+export default {
+  expo: {
+    name: appName,
+    slug: 'mymtcc-x',
+    version: '1.0.0',
+    orientation: 'portrait',
+    icon: './assets/images/icon.png',
+    scheme: 'mymtccx',
+    userInterfaceStyle: 'automatic',
+    newArchEnabled: true,
+
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: `com.xainahmed.mymtcc-x${bundleSuffix}`,
+      appleTeamId: '22SXZF5X6M',
+      infoPlist: {
+        UIBackgroundModes: [],
+        ITSAppUsesNonExemptEncryption: false,
+      },
+    },
+
+    android: {
+      adaptiveIcon: {
+        backgroundColor: '#08090C',
+      },
+      edgeToEdgeEnabled: true,
+      predictiveBackGestureEnabled: false,
+      package: `com.xainahmed.mymtccx${packageSuffix}`,
+    },
+
+    web: {
+      output: 'static',
+      favicon: './assets/images/favicon.png',
+    },
+
+    plugins: [
+      'expo-router',
+      [
+        'expo-splash-screen',
+        {
+          image: './assets/images/splash-icon.png',
+          imageWidth: 200,
+          resizeMode: 'contain',
+          backgroundColor: '#08090C',
+          dark: {
+            backgroundColor: '#08090C',
+          },
+        },
+      ],
+      [
+        'expo-notifications',
+        {
+          sounds: ['./assets/sounds/reminder.wav'],
+        },
+      ],
+      'expo-secure-store',
+      '@react-native-community/datetimepicker',
+    ],
+
+    experiments: {
+      typedRoutes: true,
+      reactCompiler: true,
+    },
+
+    extra: {
+      router: {},
+      eas: {
+        projectId: '5cd1878d-1836-488d-9fa7-c832046d6dd4',
+      },
+      appVariant: APP_VARIANT,
+    },
+
+    owner: 'xainahmed',
+  },
+};
